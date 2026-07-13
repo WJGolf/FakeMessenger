@@ -143,6 +143,7 @@ async function renderPost(post) {
       <div class="comment-input-row">
         <img class="avatar avatar-sm" src="${avatarOrFallback(me.avatar_url, me.display_name)}" />
         <input type="text" placeholder="เขียนคอมเมนต์..." class="comment-input" />
+        <button type="button" class="comment-send-btn" title="ส่งคอมเมนต์">ส่ง</button>
       </div>
     </div>
   `;
@@ -174,8 +175,9 @@ async function renderPost(post) {
   });
 
   const commentInput = wrap.querySelector(".comment-input");
-  commentInput.addEventListener("keydown", async (e) => {
-    if (e.key !== "Enter") return;
+  const commentSendBtn = wrap.querySelector(".comment-send-btn");
+
+  async function submitComment() {
     const text = commentInput.value.trim();
     if (!text) return;
     commentInput.value = "";
@@ -186,7 +188,13 @@ async function renderPost(post) {
     await loadComments(post.id, commentList);
     const { count } = await supabase.from("post_comments").select("*", { count: "exact", head: true }).eq("post_id", post.id);
     wrap.querySelectorAll(".post-stats span")[1].textContent = `${count || 0} คอมเมนต์`;
+  }
+
+  commentInput.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter") return;
+    submitComment();
   });
+  commentSendBtn.addEventListener("click", submitComment);
 
   return wrap;
 }
