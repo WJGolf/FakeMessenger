@@ -1,6 +1,7 @@
 import {
   supabase, requireAuth, getMyProfile, uploadToBucket, fileKind,
   timeAgo, escapeHtml, toast, avatarOrFallback,
+  watchIncomingMessages, notifyNewMessage,
 } from "./supabaseClient.js";
 
 let me = null;
@@ -28,6 +29,7 @@ async function init() {
   loadFeed();
   loadSuggestions();
   refreshRequestBadge();
+  watchIncomingMessages(me.id, notifyNewMessage);
 }
 
 // ------------------------------------------------------------

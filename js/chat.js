@@ -1,6 +1,7 @@
 import {
   supabase, requireAuth, getMyProfile, uploadToBucket, fileKind,
   timeAgo, escapeHtml, toast, avatarOrFallback,
+  watchIncomingMessages, notifyNewMessage,
 } from "./supabaseClient.js";
 
 let me = null;
@@ -20,6 +21,11 @@ async function init() {
 
   bindComposerControls();
   await loadConversations();
+  watchIncomingMessages(me.id, (msg) => {
+    if (msg.conversation_id === activeConversationId) return; // มองเห็นในเธรดที่เปิดอยู่แล้ว
+    notifyNewMessage(msg);
+    loadConversations();
+  });
 
   // ถ้าเปิดมาจากปุ่ม "ส่งข้อความ" ในหน้าโปรไฟล์ ?with=<uid>
   const params = new URLSearchParams(location.search);

@@ -1,6 +1,7 @@
 import {
   supabase, requireAuth, getMyProfile, uploadToBucket,
   timeAgo, escapeHtml, toast, avatarOrFallback,
+  watchIncomingMessages, notifyNewMessage,
 } from "./supabaseClient.js";
 
 let me = null;
@@ -16,6 +17,7 @@ async function init() {
   if (!me) return;
 
   document.getElementById("myAvatarTop").src = avatarOrFallback(me.avatar_url, me.display_name);
+  watchIncomingMessages(me.id, notifyNewMessage);
 
   const params = new URLSearchParams(location.search);
   const viewedId = params.get("id") || me.id;

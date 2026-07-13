@@ -89,10 +89,14 @@ export function escapeHtml(str = "") {
     .replace(/"/g, "&quot;");
 }
 
-export function toast(msg) {
+export function toast(msg, onClick) {
   const el = document.createElement("div");
   el.className = "toast";
   el.textContent = msg;
+  if (onClick) {
+    el.style.cursor = "pointer";
+    el.addEventListener("click", onClick);
+  }
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 2600);
 }
@@ -152,4 +156,61 @@ export function avatarOrFallback(url, name) {
     <text x='50%' y='58%' font-family='Kanit,sans-serif' font-size='42' fill='white'
       text-anchor='middle'>${letter}</text></svg>`;
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+// ------------------------------------------------------------
+// แจ้งเตือนข้อความใหม่แบบเรียลไทม์ — ใช้ได้ทุกหน้า (home / profile / chat)
+// เรียกครั้งเดียวตอนหน้าโหลดเสร็จ (หลังรู้ me.id แล้ว) จะคอยฟังข้อความใหม่
+// ทุกบทสนทนาของฉัน แล้วเรียก onIncoming(message) เมื่อมีข้อความใหม่จากคนอื่น
+// ------------------------------------------------------------
+export async function watchIncomingMessages(myId, onIncoming) {
+  const { data: convos } = await supabase
+    .from("conversations")
+    .select("id")
+    .or(`user_a.eq.${myId},user_b.eq.${myId}`);
+  const myConvoIds = new Set((convos || []).map(c => c.id));
+
+  const channel = supabase
+    .channel(`incoming-messages-${myId}`)
+    .on("postgres_changes", {
+      event: "INSERT", schema: "public", table: "messages",
+    }, async (payload) => {
+      const msg = payload.new;
+      if (msg.sender_id === myId) return;
+
+      if (!myConvoIds.has(msg.conversation_id)) {
+        // อาจเป็นบทสนทนาที่เพิ่งสร้างใหม่ (คนอื่นทักมาเป็นคนแรก) เช็คสดจาก DB อีกที
+        const { data: c } = await supabase
+          .from("conversations")
+          .select("id")
+          .eq("id", msg.conversation_id)
+          .or(`user_a.eq.${myId},user_b.eq.${myId}`)
+          .maybeSingle();
+        if (!c) return;
+        myConvoIds.add(msg.conversation_id);
+      }
+      onIncoming(msg);
+    })
+    .subscribe();
+
+  return channel;
+}
+
+// แสดง toast แจ้งเตือนข้อความใหม่ พร้อมคลิกเพื่อไปเปิดแชทกับคนนั้นได้ทันที
+export async function notifyNewMessage(msg) {
+  const { data: sender } = await supabase
+    .from("profiles")
+    .select("display_name")
+    .eq("id", msg.sender_id)
+    .single();
+  const senderName = sender?.display_name || "เพื่อน";
+
+  let preview = msg.content || "ส่งข้อความถึงคุณ";
+  if (msg.media_type === "sticker") preview = "ส่งสติ๊กเกอร์ถึงคุณ";
+  else if (msg.media_type === "image") preview = "ส่งรูปภาพถึงคุณ";
+  else if (msg.media_type === "video") preview = "ส่งวิดีโอถึงคุณ";
+
+  toast(`💬 ${senderName}: ${preview}`, () => {
+    window.location.href = `chat.html?with=${msg.sender_id}`;
+  });
 }
