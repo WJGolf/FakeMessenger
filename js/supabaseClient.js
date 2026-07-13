@@ -38,6 +38,12 @@ export async function getMyProfile() {
     console.error(error);
     return null;
   }
+  // บัญชีที่ถูกแอดมินระงับ: เตะออกจากระบบทันทีไม่ว่าจะพยายามเปิดหน้าไหนก็ตาม
+  if (data.is_banned) {
+    await supabase.auth.signOut();
+    window.location.href = "index.html?banned=1";
+    return null;
+  }
   return data;
 }
 
