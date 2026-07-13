@@ -156,6 +156,7 @@ img, video{ max-width: 100%; }
 @media (max-width: 780px){
   .feed-layout{ grid-template-columns: 1fr; gap:16px; padding: 16px 12px 40px; }
   .rail-left{ display:none; }
+  .rail-right{ display:block; position:static; }
 }
 .rail{ position: sticky; top: 74px; align-self:start; }
 .rail-card{
@@ -283,11 +284,12 @@ img, video{ max-width: 100%; }
 .msg-row{ display:flex; gap:8px; max-width:70%; }
 .msg-row.mine{ align-self:flex-end; flex-direction:row-reverse; }
 .bubble{
-  background: var(--bg); padding:9px 14px; border-radius: 18px;
+  background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow);
+  padding:9px 14px; border-radius: 18px;
   font-size:14.5px; line-height:1.45; position:relative;
   overflow-wrap: anywhere;
 }
-.msg-row.mine .bubble{ background: var(--periwinkle); color:#fff; }
+.msg-row.mine .bubble{ background: var(--periwinkle); color:#fff; border-color: var(--periwinkle); box-shadow:none; }
 .bubble img, .bubble video{ max-width:220px; width:100%; height:auto; border-radius:12px; display:block; }
 .bubble.sticker{ background:none; padding:0; }
 .bubble.sticker img{ width:96px; height:96px; max-width:none; border-radius:8px; }
