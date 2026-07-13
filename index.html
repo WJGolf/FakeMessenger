@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>โคเซน — เข้าสู่ระบบ</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="auth-shell">
+  <div class="auth-card sticker-card">
+    <div class="brand"><span class="dot"></span> โคเซน</div>
+    <div class="auth-sub" id="authSub">เข้าสู่ระบบเพื่อเริ่มพูดคุยกับเพื่อนๆ</div>
+
+    <!-- ฟอร์มล็อกอิน -->
+    <form id="loginForm">
+      <div class="field">
+        <label>อีเมล / เบอร์โทร / ชื่อผู้ใช้</label>
+        <input type="text" id="loginIdentifier" required placeholder="you@example.com, 08xxxxxxxx หรือ username" />
+      </div>
+      <div class="field">
+        <label>รหัสผ่าน</label>
+        <input type="password" id="loginPassword" required placeholder="••••••••" />
+      </div>
+      <button type="submit" class="pill-btn" style="width:100%;">เข้าสู่ระบบ</button>
+      <div class="error-text" id="loginError"></div>
+    </form>
+
+    <!-- ฟอร์มสมัครสมาชิก -->
+    <form id="registerForm" style="display:none;">
+      <div class="field">
+        <label>ชื่อที่แสดง</label>
+        <input type="text" id="regName" required placeholder="เช่น น้องมด" />
+      </div>
+
+      <div class="field">
+        <label>สมัครด้วย</label>
+        <div class="method-toggle">
+          <button type="button" class="method-btn active" id="methodEmailBtn" data-method="email">📧 อีเมล</button>
+          <button type="button" class="method-btn" id="methodPhoneBtn" data-method="phone">📱 เบอร์โทร</button>
+        </div>
+      </div>
+
+      <div class="field" id="regEmailField">
+        <label>อีเมล</label>
+        <input type="email" id="regEmail" placeholder="you@example.com" />
+      </div>
+      <div class="field" id="regPhoneField" style="display:none;">
+        <label>เบอร์โทร</label>
+        <input type="tel" id="regPhone" placeholder="08xxxxxxxx" />
+      </div>
+
+      <div class="field">
+        <label>รหัสผ่าน (อย่างน้อย 6 ตัวอักษร)</label>
+        <input type="password" id="regPassword" required minlength="6" placeholder="••••••••" />
+      </div>
+      <button type="submit" class="pill-btn" style="width:100%;">สมัครสมาชิก</button>
+      <div class="error-text" id="registerError"></div>
+    </form>
+
+    <div class="auth-switch">
+      <span id="switchText">ยังไม่มีบัญชี?</span>
+      <button id="switchBtn">สมัครสมาชิก</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { supabase, toast, resolveLoginEmail, phoneToEmail, normalizePhone } from "./js/supabaseClient.js";
+
+  // ถ้าล็อกอินอยู่แล้วให้ไปหน้าฟีดเลย
+  supabase.auth.getSession().then(({ data }) => {
+    if (data.session) window.location.href = "home.html";
+  });
+
+  const loginForm = document.getElementById("loginForm");
+  const registerForm = document.getElementById("registerForm");
+  const switchBtn = document.getElementById("switchBtn");
+  const switchText = document.getElementById("switchText");
+  const authSub = document.getElementById("authSub");
+  let showingLogin = true;
+
+  switchBtn.addEventListener("click", () => {
+    showingLogin = !showingLogin;
+    loginForm.style.display = showingLogin ? "block" : "none";
+    registerForm.style.display = showingLogin ? "none" : "block";
+    switchText.textContent = showingLogin ? "ยังไม่มีบัญชี?" : "มีบัญชีอยู่แล้ว?";
+    switchBtn.textContent = showingLogin ? "สมัครสมาชิก" : "เข้าสู่ระบบ";
+    authSub.textContent = showingLogin
+      ? "เข้าสู่ระบบเพื่อเริ่มพูดคุยกับเพื่อนๆ"
+      : "สร้างบัญชีใหม่ ใช้เวลาไม่ถึงนาที";
+  });
+
+  // ---------- สลับวิธีสมัคร: อีเมล / เบอร์โทร ----------
+  const methodEmailBtn = document.getElementById("methodEmailBtn");
+  const methodPhoneBtn = document.getElementById("methodPhoneBtn");
+  const regEmailField = document.getElementById("regEmailField");
+  const regPhoneField = document.getElementById("regPhoneField");
+  const regEmailInput = document.getElementById("regEmail");
+  const regPhoneInput = document.getElementById("regPhone");
+  let regMethod = "email";
+
+  function setRegMethod(method) {
+    regMethod = method;
+    methodEmailBtn.classList.toggle("active", method === "email");
+    methodPhoneBtn.classList.toggle("active", method === "phone");
+    regEmailField.style.display = method === "email" ? "block" : "none";
+    regPhoneField.style.display = method === "phone" ? "block" : "none";
+    regEmailInput.required = method === "email";
+    regPhoneInput.required = method === "phone";
+  }
+  methodEmailBtn.addEventListener("click", () => setRegMethod("email"));
+  methodPhoneBtn.addEventListener("click", () => setRegMethod("phone"));
+
+  // ---------- ล็อกอิน: รองรับอีเมล / เบอร์โทร / username ----------
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const identifier = document.getElementById("loginIdentifier").value.trim();
+    const password = document.getElementById("loginPassword").value;
+    const errEl = document.getElementById("loginError");
+    errEl.textContent = "";
+
+    if (!identifier) { errEl.textContent = "กรุณากรอกอีเมล เบอร์โทร หรือชื่อผู้ใช้"; return; }
+
+    const email = await resolveLoginEmail(identifier);
+    if (!email) { errEl.textContent = "ไม่พบบัญชีนี้ในระบบ"; return; }
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) { errEl.textContent = "เข้าสู่ระบบไม่สำเร็จ: " + error.message; return; }
+    window.location.href = "home.html";
+  });
+
+  // ---------- สมัครสมาชิก: ด้วยอีเมล หรือเบอร์โทร (ไม่ต้องยืนยันอีเมล/OTP) ----------
+  registerForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const display_name = document.getElementById("regName").value.trim();
+    const password = document.getElementById("regPassword").value;
+    const errEl = document.getElementById("registerError");
+    errEl.textContent = "";
+
+    let email, metaPhone;
+    if (regMethod === "email") {
+      email = regEmailInput.value.trim();
+      if (!email) { errEl.textContent = "กรุณากรอกอีเมล"; return; }
+    } else {
+      const rawPhone = regPhoneInput.value.trim();
+      if (!rawPhone) { errEl.textContent = "กรุณากรอกเบอร์โทร"; return; }
+      email = phoneToEmail(rawPhone);       // อีเมลภายในระบบ ผู้ใช้ไม่ต้องเห็น/ยืนยัน
+      metaPhone = normalizePhone(rawPhone);  // เก็บเบอร์จริงไว้ใน profiles.phone
+    }
+
+    const { error } = await supabase.auth.signUp({
+      email, password,
+      options: { data: { display_name, ...(metaPhone ? { phone: metaPhone } : {}) } },
+    });
+    if (error) { errEl.textContent = "สมัครสมาชิกไม่สำเร็จ: " + error.message; return; }
+    toast("สมัครสมาชิกสำเร็จ! กำลังเข้าสู่ระบบ...");
+    setTimeout(() => window.location.href = "home.html", 800);
+  });
+</script>
+</body>
+</html>

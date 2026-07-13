@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>โคเซน — หน้าหลัก</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="topbar">
+  <a href="home.html" class="brand"><span class="dot"></span> โคเซน</a>
+  <div class="searchbox">
+    <span>🔍</span>
+    <input id="searchInput" type="text" placeholder="ค้นหาด้วยชื่อ หรือ profile id" />
+  </div>
+  <div class="topbar-actions">
+    <button class="icon-btn" onclick="location.href='chat.html'" title="แชท">💬</button>
+    <button class="icon-btn" id="friendReqBtn" title="คำขอเป็นเพื่อน">
+      👥<span class="badge" id="reqBadge" style="display:none;">0</span>
+    </button>
+    <button class="icon-btn" onclick="location.href='profile.html'" title="โปรไฟล์ของฉัน">
+      <img id="myAvatarTop" class="avatar avatar-sm" />
+    </button>
+  </div>
+</div>
+
+<div class="feed-layout">
+  <!-- ซ้าย: เมนู -->
+  <div class="rail rail-left">
+    <div class="rail-card">
+      <a class="rail-link active" href="home.html">🏠 หน้าหลัก</a>
+      <a class="rail-link" href="profile.html">🙍 โปรไฟล์ของฉัน</a>
+      <a class="rail-link" href="chat.html">💬 แชท</a>
+      <a class="rail-link" href="profile.html#friends">👥 เพื่อน</a>
+      <a class="rail-link" href="profile.html#stickers">🎨 สติ๊กเกอร์ของฉัน</a>
+      <button class="rail-link" id="logoutBtn">🚪 ออกจากระบบ</button>
+    </div>
+  </div>
+
+  <!-- กลาง: ฟีด -->
+  <div class="rail-center">
+    <div class="composer sticker-card">
+      <div class="composer-top">
+        <img id="myAvatarComposer" class="avatar avatar-md" />
+        <textarea id="postContent" placeholder="คุณกำลังคิดอะไรอยู่?"></textarea>
+      </div>
+      <div class="composer-media-preview" id="mediaPreview"></div>
+      <div class="composer-actions">
+        <label class="pill-btn ghost" style="display:inline-flex;align-items:center;gap:6px;">
+          🖼️ รูป/วิดีโอ
+          <input type="file" id="postMediaInput" accept="image/*,video/*" hidden />
+        </label>
+        <div class="spacer"></div>
+        <button class="pill-btn" id="submitPostBtn">โพสต์</button>
+      </div>
+    </div>
+
+    <div id="feedList"></div>
+    <div class="empty-state" id="feedEmpty" style="display:none;">
+      <div class="big">📭</div>
+      ยังไม่มีโพสต์ ลองแอดเพื่อนหรือโพสต์อะไรสักอย่างสิ!
+    </div>
+  </div>
+
+  <!-- ขวา: แนะนำเพื่อน -->
+  <div class="rail rail-right">
+    <div class="rail-card">
+      <h3 style="margin:4px 0 10px;font-size:15px;">แนะนำเพื่อน</h3>
+      <div id="suggestList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- โมดัลค้นหาคน -->
+<div class="modal-backdrop" id="searchModal" style="display:none;">
+  <div class="modal">
+    <button class="modal-close icon-btn" id="closeSearchModal">✕</button>
+    <h3>ผลการค้นหา</h3>
+    <div class="people-grid" id="searchResults"></div>
+  </div>
+</div>
+
+<!-- โมดัลคำขอเป็นเพื่อน -->
+<div class="modal-backdrop" id="reqModal" style="display:none;">
+  <div class="modal">
+    <button class="modal-close icon-btn" id="closeReqModal">✕</button>
+    <h3>คำขอเป็นเพื่อน</h3>
+    <div id="reqList"></div>
+  </div>
+</div>
+
+<script type="module" src="js/home.js"></script>
+</body>
+</html>

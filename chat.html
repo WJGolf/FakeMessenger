@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>โคเซน — แชท</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="topbar">
+  <a href="home.html" class="brand"><span class="dot"></span> โคเซน</a>
+  <div class="topbar-actions" style="margin-left:0;">
+    <button class="icon-btn" onclick="location.href='home.html'" title="หน้าหลัก">🏠</button>
+  </div>
+  <div class="topbar-actions">
+    <button class="icon-btn" onclick="location.href='profile.html'" title="โปรไฟล์ของฉัน">
+      <img id="myAvatarTop" class="avatar avatar-sm" />
+    </button>
+  </div>
+</div>
+
+<div class="chat-shell" id="chatShell">
+  <div class="conv-list" id="convList">
+    <h2>ข้อความ</h2>
+    <div id="convItems"></div>
+  </div>
+
+  <div class="thread" id="thread" style="position:relative;">
+    <div id="threadEmpty" class="empty-state" style="margin-top:80px;">
+      <div class="big">💬</div>
+      เลือกแชทจากด้านซ้าย หรือเริ่มคุยกับเพื่อนใหม่จากหน้าโปรไฟล์
+    </div>
+    <div id="threadActive" style="display:none;height:100%;flex-direction:column;">
+      <div class="thread-head">
+        <button class="icon-btn" id="backToListBtn" style="display:none;">←</button>
+        <img id="threadAvatar" class="avatar avatar-sm" />
+        <div>
+          <div style="font-weight:600;" id="threadName"></div>
+          <div class="mono" style="font-size:11px;color:var(--ink-soft);" id="threadPid"></div>
+        </div>
+      </div>
+      <div class="thread-body" id="threadBody"></div>
+      <div class="thread-input">
+        <label class="icon-btn" title="ส่งรูป/วิดีโอ">
+          🖼️<input type="file" id="mediaInput" accept="image/*,video/*" hidden />
+        </label>
+        <button class="icon-btn" id="stickerBtn" title="สติ๊กเกอร์">🎨</button>
+        <input type="text" id="textInput" placeholder="พิมพ์ข้อความ..." />
+        <button class="pill-btn" id="sendBtn">ส่ง</button>
+      </div>
+      <div class="sticker-tray" id="stickerTray" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/chat.js"></script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>โคเซน — โปรไฟล์</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="topbar">
+  <a href="home.html" class="brand"><span class="dot"></span> โคเซน</a>
+  <div class="topbar-actions" style="margin-left:0;">
+    <button class="icon-btn" onclick="location.href='home.html'" title="หน้าหลัก">🏠</button>
+    <button class="icon-btn" onclick="location.href='chat.html'" title="แชท">💬</button>
+  </div>
+  <div class="topbar-actions">
+    <img id="myAvatarTop" class="avatar avatar-sm" />
+  </div>
+</div>
+
+<div class="profile-cover" id="coverImg">
+  <button class="icon-btn" id="changeCoverBtn" style="position:absolute;right:14px;bottom:14px;background:rgba(255,255,255,.85);">
+    🖼️ เปลี่ยนปกโปรไฟล์
+  </button>
+  <input type="file" id="coverInput" accept="image/*" hidden />
+</div>
+
+<div class="profile-head">
+  <div style="position:relative;">
+    <img id="avatarImg" class="avatar avatar-xl" />
+    <button class="icon-btn" id="changeAvatarBtn" style="position:absolute;bottom:6px;right:6px;background:#fff;">📷</button>
+    <input type="file" id="avatarInput" accept="image/*" hidden />
+  </div>
+  <div class="profile-info">
+    <div class="name" id="profileName"></div>
+    <div class="pid mono" id="profilePid"></div>
+  </div>
+  <div id="actionButtons" style="padding-bottom:10px;display:flex;gap:8px;"></div>
+</div>
+
+<div class="profile-bio" id="profileBio"></div>
+
+<div class="profile-tabs">
+  <button class="profile-tab active" data-tab="posts">โพสต์</button>
+  <button class="profile-tab" data-tab="friends">เพื่อน</button>
+  <button class="profile-tab" data-tab="stickers">สติ๊กเกอร์</button>
+  <button class="profile-tab" data-tab="settings" id="settingsTabBtn" style="display:none;">ตั้งค่า</button>
+</div>
+
+<div class="profile-body">
+  <div class="tab-panel" data-panel="posts"><div id="ownPosts"></div></div>
+
+  <div class="tab-panel" data-panel="friends" style="display:none;">
+    <div class="people-grid" id="friendsGrid"></div>
+  </div>
+
+  <div class="tab-panel" data-panel="stickers" style="display:none;">
+    <div class="rail-card sticker-card" style="margin-bottom:16px;">
+      <h3 style="margin-top:0;">สร้างสติ๊กเกอร์ใหม่</h3>
+      <div class="field">
+        <label>ชื่อสติ๊กเกอร์ (ถ้ามี)</label>
+        <input type="text" id="stickerName" placeholder="เช่น ยิ้มหวาน" />
+      </div>
+      <div class="field">
+        <label>เลือกรูปภาพ</label>
+        <input type="file" id="stickerFileInput" accept="image/*" />
+      </div>
+      <button class="pill-btn jade" id="createStickerBtn">สร้างสติ๊กเกอร์</button>
+    </div>
+    <div class="people-grid" id="stickerGrid"></div>
+  </div>
+
+  <div class="tab-panel" data-panel="settings" style="display:none;">
+    <div class="rail-card sticker-card" style="max-width:460px;">
+      <h3 style="margin-top:0;">แก้ไขโปรไฟล์</h3>
+      <div class="field">
+        <label>ชื่อที่แสดง</label>
+        <input type="text" id="editName" />
+      </div>
+      <div class="field">
+        <label>คำอธิบายตัวเอง</label>
+        <textarea id="editBio" rows="4"></textarea>
+      </div>
+      <button class="pill-btn" id="saveProfileBtn">บันทึกการเปลี่ยนแปลง</button>
+      <div class="error-text" id="profileSaveMsg"></div>
+    </div>
+
+    <div class="rail-card sticker-card" style="max-width:460px;">
+      <h3 style="margin-top:0;">เปลี่ยนรหัสผ่าน</h3>
+      <div class="field">
+        <label>รหัสผ่านใหม่ (อย่างน้อย 6 ตัวอักษร)</label>
+        <input type="password" id="newPassword" minlength="6" />
+      </div>
+      <div class="field">
+        <label>ยืนยันรหัสผ่านใหม่</label>
+        <input type="password" id="confirmPassword" minlength="6" />
+      </div>
+      <button class="pill-btn" id="changePasswordBtn">เปลี่ยนรหัสผ่าน</button>
+      <div class="error-text" id="passwordMsg"></div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/profile.js"></script>
+</body>
+</html>
